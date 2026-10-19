@@ -1,0 +1,7 @@
+model_name: moment_stepper
+lr: 1.0e-4
+latent: True
+
+moment_stepper:
+    max_eval_steps: 1
+    loss_type: kl   # "kl" or "mse_moments"

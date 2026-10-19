@@ -1,0 +1,10 @@
+model_name: interpolant
+lr: 1.0e-4
+latent: True
+interpolant:
+    num_refinement_steps: 10
+    num_train_steps: 5
+    sigma_coef: 1.0
+    beta_fn: t
+    integrator: em
+    antithetic_sampling: False

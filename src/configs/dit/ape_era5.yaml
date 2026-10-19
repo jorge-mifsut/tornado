@@ -1,0 +1,13 @@
+# DiT for ERA5: 16 x 30 latent grid; in_dim = 2 * latent_channels, out_dim = latent_channels.
+in_dim: 16
+out_dim: 8
+dim: 256
+num_heads: 16
+num_layers: 12
+patch_size: [1, 1]
+input_size: [16, 30]
+cond_dim: 256
+num_cond: ${data.num_cond}
+detach: True
+block: True
+tornado: False

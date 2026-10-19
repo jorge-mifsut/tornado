@@ -1,0 +1,15 @@
+autoencoder:
+  checkpoint_path: ${oc.env:SCRATCH}/stochastic_interpolants/logs/
+  run: AE_burgers__42_2026-01-16T14-14-13
+
+dataset:
+  train_path: ${oc.env:SCRATCH}/datasets/ApeBench/burgers_train_1024.npy
+  valid_path: ${oc.env:SCRATCH}/datasets/ApeBench/burgers_test_256.npy
+  resolution_train: [25, 160, 160]
+  resolution_valid: [50, 160, 160]
+normalizer:
+  stat_path: ${oc.env:SCRATCH}/datasets/ApeBench/burgers_train_norm_stats.pkl
+pde: burgers
+num_workers: 8
+batch_size: 32
+ae: True

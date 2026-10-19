@@ -1,0 +1,18 @@
+model_name: tornado
+lr: 1.0e-4
+latent: True
+warmup_epochs: 1000
+ramp_epochs: 200
+lambda_max: 1.0
+
+# warm start from another run's weights (training.checkpoint is a full resume)
+from_checkpoint: null
+from_checkpoint_type: best
+
+tornado:
+  integrator_steps: 5
+  K: 16
+  L: 16
+  lambda_ED: 0.1
+  sigma_min: 1.0e-4
+  sigma_scale: 0.1 # KS: 0.03, Burgers: 0.17, Kolmogorov: 0.1

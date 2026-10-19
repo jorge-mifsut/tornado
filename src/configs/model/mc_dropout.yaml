@@ -1,0 +1,7 @@
+model_name: mc_dropout
+lr: 1.0e-4
+latent: True
+
+mc_dropout:
+    max_eval_steps: 1
+    dropout: 0.1

@@ -1,0 +1,11 @@
+in_dim: 8
+out_dim: 4
+dim: 256
+num_heads: 16
+num_layers: 12
+patch_size: [1, 1]
+input_size: [20, 20]
+cond_dim: 256
+detach: True
+block: True
+tornado: False

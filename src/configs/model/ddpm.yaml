@@ -1,0 +1,12 @@
+model_name: ddpm
+lr: 1.0e-4
+latent: True
+
+ddpm:
+    noise_steps: 100
+    scale: 400
+    skip_percent: 0
+    beta_start: 1.0e-4
+    beta_end: 0.02
+    schedule: linear
+  

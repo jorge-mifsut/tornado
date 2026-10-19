@@ -1,0 +1,32 @@
+# Date-conditioned VAE for ERA5 (121 x 240 x 4). Padded to 128 x 240, latent 16 x 30 x 8.
+model_name: ae
+lr: 1.0e-4
+input_resolution: [121, 240]
+pad_to_multiple: 8
+lat_weighted_loss: true
+encoder:
+  in_channels: 4
+  latent_channels: 8
+  width_list: [64, 128, 256, 256]
+  block_type: ["ResBlock", "ResBlock", "ResBlock", "ResBlock"]
+  depth_list: [3, 3, 3, 3]
+  cond_dim: 4
+  padding_mode: sphere # circular in longitude, replicate at the poles
+decoder:
+  in_channels: 4
+  latent_channels: 8
+  width_list: [64, 128, 256, 256]
+  block_type: ["ResBlock", "ResBlock", "ResBlock", "ResBlock"]
+  depth_list: [3, 3, 3, 3]
+  cond_dim: 4
+  padding_mode: sphere
+kl_weight: 5.0e-06
+kl_warmup_epochs: 20
+warmup_epochs: 20 # 'best' checkpoint only after the KL ramp
+ramp_epochs: 0
+lambda_iso: 0.0
+lambda_curv: 0.0
+lambda_vel: 0
+calib_K: 1
+calib_weight: 0.0
+jac_weight: 0.0

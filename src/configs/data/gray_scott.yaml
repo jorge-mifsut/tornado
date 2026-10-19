@@ -1,0 +1,15 @@
+autoencoder:
+  checkpoint_path: ${oc.env:SCRATCH}/stochastic_interpolants/logs/
+  run: AE_gray_scott_42_betae_6_2026-01-26T14-28-21
+
+dataset:
+  train_path: ${oc.env:SCRATCH}/datasets/ApeBench/GrayScott_train_256.npy
+  valid_path: ${oc.env:SCRATCH}/datasets/ApeBench/GrayScott_test_64.npy
+  resolution_train: [101, 160, 160]
+  resolution_valid: [101, 160, 160]
+normalizer:
+  stat_path: ${oc.env:SCRATCH}/datasets/ApeBench/GrayScott_train_norm_stats.pkl
+pde: gray_scott
+num_workers: 8
+batch_size: 32
+ae: True

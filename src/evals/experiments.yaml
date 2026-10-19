@@ -1,0 +1,656 @@
+# Paper and rebuttal tables and figures, for `python -m evals.reproduce <name>`.
+# store: RolloutSpec fields (rows may override); steps: steps averaged or plotted;
+# metrics: keys of evals/reduce.py. VERIFY marks runs of unconfirmed provenance.
+
+store_defs:
+  km: &km {rollout: 100, nfe: 5, K: 16, ckpt: best}
+  km_nfe2: &km_nfe2 {rollout: 50, nfe: 2, K: 16, ckpt: best}
+  km_nfe10: &km_nfe10 {rollout: 50, nfe: 10, K: 16, ckpt: best}
+  km_k64: &km_k64 {rollout: 20, nfe: 5, K: 64, ckpt: best}
+  km_nfe_sweep: &km_nfe_sweep {rollout: 20, K: 16, ckpt: best, subset: {n: 64, seed: 0}}
+  km_ablation: &km_ablation {rollout: 33, nfe: 5, K: 16, ckpt: last}
+  synthetic: &synthetic {rollout: 50, nfe: 5, K: 16, ckpt: best}
+  rc20: &rc20 {rollout: 20, nfe: 5, K: 16, ckpt: last, batch_size: 4}
+  rc20_best: &rc20_best {rollout: 20, nfe: 5, K: 16, ckpt: best, batch_size: 4}
+  rc2000: &rc2000 {rollout: 2000, nfe: 5, K: 16, ckpt: best, batch_size: 4}
+  era5: &era5 {rollout: 40, nfe: 5, K: 16, ckpt: last, split: test, batch_size: 4}
+  era5_best: &era5_best {rollout: 40, nfe: 5, K: 16, ckpt: best, split: test, batch_size: 4}
+
+metric_sets:
+  table1_synthetic: &table1_synthetic
+    - {col: mse, label: "MSE ($10^{-3}$)", scale: 1.0e-3, prec: 3}
+    - {col: crps, label: "CRPS ($10^{-2}$)", scale: 1.0e-2, prec: 3}
+    - {col: rmsce, label: "RMSCE ($10^{-2}$)", scale: 1.0e-2, prec: 3}
+    - {col: abs_log_ssr, label: "$|\\log(\\mathrm{SSR})|$", prec: 4}
+  table1_real: &table1_real
+    - {col: mse, label: "MSE ($10^{-3}$)", scale: 1.0e-3, prec: 2}
+    - {col: crps, label: "CRPS ($10^{-2}$)", scale: 1.0e-2, prec: 3}
+    - {col: rmsce, label: "RMSCE ($10^{-2}$)", scale: 1.0e-2, prec: 2}
+    - {col: abs_log_ssr, label: "$|\\log(\\mathrm{SSR})|$", prec: 3}
+  ablation: &ablation_metrics
+    - {col: mse, label: "MSE", prec: 4}
+    - {col: crps, label: "CRPS", prec: 4}
+    - {col: rmsce, label: "RMSCE", prec: 4}
+    - {col: abs_log_ssr, label: "$|\\log(\\mathrm{SSR})|$", prec: 4}
+  rebuttal: &rebuttal_metrics
+    - {col: mse, label: MSE, prec: 4}
+    - {col: crps, label: CRPS, prec: 4}
+    - {col: rmsce, label: RMSCE, prec: 4}
+    - {col: ssr, label: SSR, prec: 4, better: one}
+    - {col: sharpness, label: Spread, prec: 4}
+
+row_sets:
+  km4: &km4
+    - {run: ddim_km_flow_42_2026-01-18T13-38-10, label: DDIM}
+    - {run: flow_matching_km_flow_42_2026-01-18T13-37-59, label: FM}
+    - {run: interpolant_km_flow_42_2026-01-18T13-38-36, label: SI}
+    - {run: cone_km_flow_42_alldet_2026-01-22T11-43-08, label: TORNADO}
+  rc:
+    - &rc_ddim {run: ddim_real_combustion_42_rc_tornado_cond_job_469601, label: DDIM}
+    - &rc_fm {run: flow_matching_real_combustion_42_rc_tornado_cond_job_469600, label: FM}
+    - &rc_si {run: interpolant_real_combustion_42_rc_tornado_cond_job_469388, label: SI}
+  era5:
+    - &era5_ddim {run: ddim_era5_42_era5_ddim_job_532807, label: DDIM}
+    - &era5_fm {run: flow_matching_era5_42_era5_fm_job_532808, label: FM}
+    - &era5_si {run: interpolant_era5_42_era5_si_job_532809, label: SI}
+
+experiments:
+
+  # ------------------------------------------------------------------ main text
+
+  table1_kolmogorov:
+    paper: Table 1 (Kolmogorov)
+    kind: table
+    store: *km
+    steps: 20
+    metrics: *table1_synthetic
+    rows: *km4
+
+  table1_ks:
+    paper: Table 1 (KS)
+    kind: table
+    store: *synthetic
+    steps: 20
+    metrics: *table1_synthetic
+    rows:
+      - {run: ddim_ks_2d_42_2026-01-19T17-16-43, label: DDIM}
+      - {run: flow_matching_ks_2d_42_2026-01-19T17-15-13, label: FM}
+      - {run: interpolant_ks_2d_42_2026-01-19T17-16-40, label: SI}
+      - {run: cone_ks_2d_42_noise01_2026-01-22T19-59-39, label: TORNADO}   # VERIFY (vs cone_ks_2d_42_2026-01-21T14-42-01)
+
+  table1_burgers:
+    paper: Table 1 (Burgers)
+    kind: table
+    store: *synthetic
+    steps: 20
+    metrics: *table1_synthetic
+    rows:
+      - {run: ddim_burgers_42_2026-01-19T17-14-39, label: DDIM}
+      - {run: flow_matching_burgers_42_2026-01-19T18-16-41, label: FM}
+      - {run: interpolant_burgers_42_2026-01-19T18-19-41, label: SI}
+      - {run: cone_burgers_42_noise01_2026-01-22T19-37-33, label: TORNADO}  # VERIFY (vs cone_burgers_42_2026-01-21T14-24-29)
+
+  table1_gray_scott:
+    paper: Table 1 (GS)
+    kind: table
+    store: *synthetic
+    steps: 20
+    metrics: *table1_synthetic
+    rows:
+      - {run: ddim_gray_scott_42__2026-01-26T22-26-12, label: DDIM}
+      - {run: flow_matching_gray_scott_42__2026-01-26T22-26-13, label: FM}
+      - {run: interpolant_gray_scott_42__2026-01-26T22-27-10, label: SI}
+      - {run: cone_gray_scott_42__2026-01-27T13-50-26, label: TORNADO}
+
+  table1_combustion:
+    paper: Table 1 (Combustion) -- TORNADO is the mean of two lambda_ED=1 runs
+    kind: table
+    store: *rc20
+    steps: 20
+    metrics: *table1_real
+    rows:
+      - *rc_ddim
+      - *rc_fm
+      - *rc_si
+      - {run: cone_real_combustion_42_rc_sw_led1_job_522541, label: TORNADO, group: tornado}
+      - {run: cone_real_combustion_42_rc_sw_led1_job_522590, label: TORNADO, group: tornado}
+
+  table1_era5:
+    paper: Table 1 (ERA5)
+    kind: table
+    store: *era5
+    steps: 40
+    metrics: *table1_real
+    rows:
+      - *era5_ddim
+      - *era5_fm
+      - *era5_si
+      - {run: cone_era5_42_era5_tornado_sig0.1_ed3.0_long_job_541534, label: TORNADO}
+
+  fig2_pit:
+    paper: Figure 2 / Figure 13 (PIT histograms, Kolmogorov, steps 1-20)
+    kind: pit
+    store: *km
+    steps: 20
+    rows: *km4
+
+  fig3_per_step:
+    paper: Figure 3 (Kolmogorov per-step metrics, NFE=5, T=50)
+    kind: per_step
+    store: *km
+    steps: 50
+    metrics: [mse, crps, rmsce, ssr]
+    rows: *km4
+
+  fig4_rollout:
+    paper: Figure 4 (TORNADO rollout, Kolmogorov, T=50)
+    kind: panel_single
+    store: *km
+    steps: 50
+    frame_gap: 5
+    sample: 0
+    rows:
+      - {run: cone_km_flow_42_alldet_2026-01-22T11-43-08, label: TORNADO}
+
+  table2_integrators:
+    paper: Table 2 (learned vs prescribed diffusion, same drift, T=33)
+    kind: table
+    store: {<<: *km_ablation}
+    steps: 33
+    metrics: *ablation_metrics
+    rows:
+      - {run: cone_km_flow_42_good_detach_block_2026-01-23T18-46-34, label: Euler, store: {sampler: euler}}
+      # the paper's amplitude; drop it to re-estimate
+      - {run: cone_km_flow_42_good_detach_block_2026-01-23T18-46-34, label: Constant Amplitude,
+         store: {sampler: amplitude, amplitude: 0.572394073009491}}
+      - {run: cone_km_flow_42_good_detach_block_2026-01-23T18-46-34, label: Fixed Schedule, store: {sampler: fixed}}
+      - {run: cone_km_flow_42_good_detach_block_2026-01-23T18-46-34, label: TORNADO, store: {sampler: em}}
+
+  # ------------------------------------------------------------------ appendix
+
+  table5_diffusion_losses:
+    paper: Table 5 (diffusion-loss ablation, T=10)
+    kind: table
+    store: *km_ablation
+    steps: 10
+    metrics: *ablation_metrics
+    rows:
+      - {run: cone_km_flow_42_ED0det_2026-01-22T11-35-46, label: "$\\lambda_{ED}=0, \\lambda_{var}=1$"}
+      - {run: cone_km_flow_42_ED01det_2026-01-22T11-38-56, label: "$\\lambda_{ED}=0.1, \\lambda_{var}=0$"}
+      - {run: cone_km_flow_42_ED1det_2026-01-22T11-40-28, label: "$\\lambda_{ED}=1, \\lambda_{var}=0$"}
+      - {run: cone_km_flow_42_good_detach_block_2026-01-23T18-46-34, label: "$\\lambda_{ED}=0.1, \\lambda_{var}=1$"}
+
+  fig5_lambda_ed:
+    paper: Figure 5 (lambda_ED sweep, lambda_var=1, T=33)
+    kind: sweep
+    store: *km_ablation
+    steps: 33
+    xlabel: "$\\lambda_{ED}$"
+    xscale: symlog
+    metrics: [mse, crps, rmsce, abs_log_ssr]
+    rows:
+      - {run: cone_km_flow_42_lam00_2026-02-27T18-13-17, label: TORNADO, x: 0.0}
+      - {run: cone_km_flow_42_lam001_2026-02-27T18-13-11, label: TORNADO, x: 0.01}
+      - {run: cone_km_flow_42_lam005_2026-02-27T18-18-56, label: TORNADO, x: 0.05}
+      - {run: cone_km_flow_42_lam01_2026-02-27T18-14-25, label: TORNADO, x: 0.1}
+      - {run: cone_km_flow_42_lam05_2026-02-27T18-14-25, label: TORNADO, x: 0.5}
+      - {run: cone_km_flow_42_lam1_2026-02-27T18-14-58, label: TORNADO, x: 1.0}
+
+  table6_vae_calibration:
+    paper: Table 6 (VAE vs TORNADO one-step RMSCE across beta)
+    kind: vae_table
+    store: {rollout: 20, nfe: 5, K: 16, ckpt: best}
+    steps: 20
+    rows:
+      - {run: cone_km_flow_42_beta7_job_1346268, vae: ae_km_flow_42_betae_7_job_1330213, beta: 1.0e-7}
+      - {run: cone_km_flow_42_beta6_job_1346351, vae: ae_km_flow_42_betae_6_job_1330217, beta: 1.0e-6}
+      - {run: cone_km_flow_42_beta5_job_1346375, vae: ae_km_flow_42_betae_5_job_1330224, beta: 1.0e-5}
+      - {run: cone_km_flow_42_beta4_job_1346464, vae: ae_km_flow_42_betae_4_job_1330216, beta: 1.0e-4}
+
+  table7_vae_beta:
+    paper: Table 7 (VAE regularisation sweep; 'last' -- 'best' predates the diffusion ramp for 2 of 4)
+    kind: vae_table
+    store: {rollout: 20, nfe: 5, K: 16, ckpt: last}
+    steps: 20
+    rows:
+      - {run: cone_km_flow_42_beta7_job_185625, vae: ae_km_flow_42_betae_7_job_141027, vae_ckpt: last, beta: 1.0e-7}
+      - {run: cone_km_flow_42_beta6_job_185626, vae: ae_km_flow_42_betae_6_job_141029, vae_ckpt: last, beta: 1.0e-6}
+      - {run: cone_km_flow_42_beta5_job_185627, vae: ae_km_flow_42_betae_5_job_141030, vae_ckpt: last, beta: 1.0e-5}
+      - {run: cone_km_flow_42_beta4_job_185628, vae: ae_km_flow_42_betae_4_job_141031, vae_ckpt: last, beta: 1.0e-4}
+
+  table8_solvers:
+    paper: Table 8 (higher-order solvers, T=20)
+    kind: table
+    store: {rollout: 20, nfe: 5, K: 16, ckpt: best}
+    steps: 20
+    metrics: *ablation_metrics
+    rows:
+      - {run: cone_km_flow_42_alldet_2026-01-22T11-43-08, label: TORNADO-EM, store: {sampler: em}}
+      - {run: cone_km_flow_42_alldet_2026-01-22T11-43-08, label: TORNADO-Milstein, store: {sampler: milstein}}
+      - {run: flow_matching_km_flow_42_2026-01-18T13-37-59, label: FM-Euler, store: {sampler: euler}}
+      - {run: flow_matching_km_flow_42_2026-01-18T13-37-59, label: FM-Heun, store: {sampler: heun}}
+
+  table9_detach:
+    paper: Table 9 (gradient stop on the diffusion head, T=10)
+    kind: table
+    store: *km_ablation
+    steps: 10
+    metrics: *ablation_metrics
+    rows:
+      - {run: cone_km_flow_42_good_detach_block_2026-01-23T18-46-34, label: w/ detach}
+      - {run: cone_km_flow_42_no_detach_block_2026-01-23T17-34-08, label: w/o detach}
+
+  table10_timing:
+    paper: Table 10 (ms per forecast step, B=32, K=16; needs a GPU)
+    kind: timing
+    nfes: [2, 5, 10]
+    batch_size: 32
+    K: 16
+    rows: *km4
+
+  fig6_sigma:
+    paper: Figure 6 (sigma_gamma sweep, T=10)
+    kind: sweep
+    store: *km_ablation
+    steps: 10
+    xlabel: "$\\sigma_{scale}$"
+    xscale: symlog
+    metrics: [rmsce, abs_log_ssr]
+    rows:
+      - {run: cone_km_flow_42_noise0_2026-01-22T11-50-00, label: TORNADO, panel: Kolmogorov, x: 0.0}
+      - {run: cone_km_flow_42_alldet_2026-01-22T11-43-08, label: TORNADO, panel: Kolmogorov, x: 0.1}
+      - {run: cone_km_flow_42_noise05_2026-01-22T11-49-07, label: TORNADO, panel: Kolmogorov, x: 0.5}
+      - {run: cone_km_flow_42_noise1_2026-01-23T09-31-14, label: TORNADO, panel: Kolmogorov, x: 1.0}
+      - {run: cone_km_flow_42_noise10_2026-01-23T11-09-03, label: TORNADO, panel: Kolmogorov, x: 10.0}
+      - {run: cone_ks_2d_42_noise0_2026-01-22T20-14-30, label: TORNADO, panel: KS, x: 0.0}
+      - {run: cone_ks_2d_42_noise01_2026-01-22T19-59-39, label: TORNADO, panel: KS, x: 0.1}
+      - {run: cone_ks_2d_42_noise05_2026-01-22T19-55-52, label: TORNADO, panel: KS, x: 0.5}
+      - {run: cone_ks_2d_42_noise1_2026-01-22T20-16-29, label: TORNADO, panel: KS, x: 1.0}
+      - {run: cone_ks_2d_42_noise10_2026-01-23T11-09-03, label: TORNADO, panel: KS, x: 10.0}
+      - {run: cone_burgers_42_noise0_2026-01-22T20-08-25, label: TORNADO, panel: Burgers, x: 0.0}
+      - {run: cone_burgers_42_noise01_2026-01-22T19-37-33, label: TORNADO, panel: Burgers, x: 0.1}
+      - {run: cone_burgers_42_noise05_2026-01-22T19-52-54, label: TORNADO, panel: Burgers, x: 0.5}
+      # VERIFY: named noise0, labelled sigma=1.0
+      - {run: cone_burgers_42_noise0_2026-01-22T19-27-19, label: TORNADO, panel: Burgers, x: 1.0}
+      - {run: cone_burgers_42_noise10_2026-01-23T11-09-03, label: TORNADO, panel: Burgers, x: 10.0}
+
+  fig7_ensemble_size:
+    paper: Figure 7 (ensemble size K, steps 1-20)
+    kind: k_sweep
+    store: *km_k64
+    k_subsets: [4, 8, 16, 32, 64]
+    steps: 20
+    metrics: [rmsce, crps, ssr, width@95]
+    ncols: 4
+    rows: *km4
+
+  table11_autoregressive:
+    paper: Table 11 (autoregressive training)
+    kind: table
+    store: *km
+    steps: 20
+    metrics: *ablation_metrics
+    rows:
+      - {run: cone_km_flow_42_alldet_2026-01-22T11-43-08, label: TORNADO (TF)}
+      - {run: tornado_ar_km_flow_42_len2long_job_1529302, label: TORNADO-AR (H=2)}   # VERIFY
+      - {run: tornado_ar_km_flow_42_len4conf_job_1496011, label: TORNADO-AR (H=4)}   # VERIFY
+
+  table12_one_step:
+    paper: Table 12 (one-step latent baselines)
+    kind: table
+    store: *km
+    steps: 20
+    metrics: *ablation_metrics
+    rows:
+      - {run: cone_km_flow_42_alldet_2026-01-22T11-43-08, label: TORNADO (NFE=5)}
+      - {run: gaussian_nll_km_flow_42__2026-02-17T18-14-24, label: NLL}
+      - {run: moment_stepper_km_flow_42__2026-02-26T17-53-13, label: VAE matching}
+      - {run: mc_dropout_km_flow_42__2026-02-23T17-35-47, label: MC Dropout}
+
+  fig8_enstrophy_windows:
+    paper: Figure 8 (Wasserstein distance of total-enstrophy distributions, windows of 20 over T=100)
+    kind: enstrophy_windows
+    store: *km
+    window: 20
+    rows: *km4
+
+  fig9_enstrophy_trajectories:
+    paper: Figures 9-10 (normalised total enstrophy of single rollouts)
+    kind: enstrophy_traj
+    store: *km
+    samples: [3, 0]   # VERIFY
+    rows: *km4
+
+  table13_sharpness:
+    paper: Table 13 (calibration, sharpness and skill, steps 1-20)
+    kind: table
+    store: *km
+    steps: 20
+    metrics:
+      - {col: rmsce, label: RMSCE, prec: 3}
+      - {col: width@95, label: "PI width@95\\%", prec: 3, better: none}
+      - {col: cov@95, label: "cov.@95\\%", prec: 3, better: high}
+      - {col: ssr, label: "SSR $\\to$ 1", prec: 3, better: one}
+      - {col: crps, label: CRPS, prec: 3}
+    rows: *km4
+
+  fig11_calibration_sharpness:
+    paper: Figure 11 (RMSCE vs 90% interval width)
+    kind: scatter
+    store: *km
+    steps: 20
+    width: width@90
+    rows: *km4
+
+  fig12_reliability:
+    paper: Figure 12 (reliability diagrams, one-step and steps 1-20)
+    kind: reliability
+    store: *km
+    steps: 20
+    rows: *km4
+
+  table14_latent_terciles:
+    paper: Table 14 (latent error vs variance by error tercile, steps 1-10)
+    kind: latent_terciles
+    store: *km
+    steps: 10
+    rows:
+      - {run: cone_km_flow_42_2026-01-17T22-37-12, label: TORNADO}
+      - {run: interpolant_km_flow_42_2026-01-18T13-38-36, label: SI}
+
+  table15_era5_per_variable:
+    paper: Table 15 (ERA5 per variable, steps 1-40)
+    kind: per_var
+    store: *era5
+    steps: 40
+    vars: [t2m, u10, v10, z500]
+    metrics:
+      - {col: mse, label: "MSE ($10^{-3}$)", scale: 1.0e-3, prec: 3}
+      - {col: crps, label: "CRPS ($10^{-2}$)", scale: 1.0e-2, prec: 2}
+      - {col: rmsce, label: "RMSCE ($10^{-2}$)", scale: 1.0e-2, prec: 2}
+      - {col: abs_log_ssr, label: "$|\\log(\\mathrm{SSR})|$", prec: 3}
+    rows:
+      - *era5_ddim
+      - *era5_fm
+      - *era5_si
+      - {run: cone_era5_42_era5_tornado_sig0.1_ed3.0_long_job_541534, label: TORNADO}
+
+  fig14_per_step_nfe2:
+    paper: Figure 14 (Kolmogorov per-step metrics, NFE=2)
+    kind: per_step
+    store: *km_nfe2
+    steps: 50
+    metrics: [mse, crps, rmsce, ssr]
+    rows: *km4
+
+  fig15_per_step_nfe10:
+    paper: Figure 15 (Kolmogorov per-step metrics, NFE=10)
+    kind: per_step
+    store: *km_nfe10
+    steps: 50
+    metrics: [mse, crps, rmsce, ssr]
+    rows: *km4
+
+  fig16_nfe:
+    paper: Figure 16 (NFE sensitivity; 64-trajectory subset, steps 1-20)
+    kind: nfe_sweep
+    store: *km_nfe_sweep
+    nfes: [2, 3, 4, 5, 8, 10, 15, 20]
+    steps: 20
+    metrics: [mse, crps, rmsce, ssr]
+    rows: *km4
+
+  fig17_panels_kolmogorov:
+    paper: Figures 17-18 (Kolmogorov trajectories, error and 95% CI)
+    kind: panels
+    store: *km
+    steps: 50
+    frame_gap: 10
+    rows: *km4
+
+  fig19_panels_burgers:
+    paper: Figures 19-20 (Burgers)
+    kind: panels
+    store: *synthetic
+    steps: 25
+    frame_gap: 5
+    rows:
+      - {run: ddim_burgers_42_2026-01-19T17-14-39, label: DDIM}
+      - {run: flow_matching_burgers_42_2026-01-19T18-16-41, label: FM}
+      - {run: interpolant_burgers_42_2026-01-19T18-19-41, label: SI}
+      - {run: cone_burgers_42_noise01_2026-01-22T19-37-33, label: TORNADO}
+
+  fig21_panels_ks:
+    paper: Figures 21-22 (KS)
+    kind: panels
+    store: *synthetic
+    steps: 50
+    frame_gap: 10
+    rows:
+      - {run: ddim_ks_2d_42_2026-01-19T17-16-43, label: DDIM}
+      - {run: flow_matching_ks_2d_42_2026-01-19T17-15-13, label: FM}
+      - {run: interpolant_ks_2d_42_2026-01-19T17-16-40, label: SI}
+      - {run: cone_ks_2d_42_noise01_2026-01-22T19-59-39, label: TORNADO}
+
+  fig23_panels_gray_scott:
+    paper: Figures 23-24 (Gray-Scott, first channel)
+    kind: panels
+    store: *synthetic
+    steps: 50
+    frame_gap: 10
+    rows:
+      - {run: ddim_gray_scott_42__2026-01-26T22-26-12, label: DDIM}
+      - {run: flow_matching_gray_scott_42__2026-01-26T22-26-13, label: FM}
+      - {run: interpolant_gray_scott_42__2026-01-26T22-27-10, label: SI}
+      - {run: cone_gray_scott_42__2026-01-27T13-50-26, label: TORNADO}
+
+  fig25_panels_combustion:
+    paper: Figures 25-26 (Combustion)
+    kind: panels
+    store: *rc20
+    steps: 20
+    frame_gap: 4
+    channel_opts:
+      field: {cmap: bone, vmin_zero: true, vmax_percentile: 99.5}
+    rows:
+      - {run: cone_real_combustion_42_rc_sw_led1_job_522590, label: TORNADO}
+      - *rc_ddim
+      - *rc_fm
+      - *rc_si
+
+  fig27_panels_era5:
+    paper: Figures 27-34 (ERA5, one pair of figures per variable)
+    kind: panels
+    store: *era5
+    steps: 40
+    frame_gap: 8
+    geo: true
+    channels: {t2m: 0, u10: 1, v10: 2, z500: 3}
+    channel_opts:
+      t2m: {unit: K, cmap: RdYlBu_r}
+      u10: {unit: "m s$^{-1}$", cmap: coolwarm, symmetric: true}
+      v10: {unit: "m s$^{-1}$", cmap: coolwarm, symmetric: true}
+      z500: {unit: "m$^2$ s$^{-2}$", cmap: Spectral_r}
+    rows:
+      - {run: cone_era5_42_era5_tornado_sig0.1_ed3.0_long_job_541534, label: TORNADO}
+      - *era5_ddim
+      - *era5_fm
+      - *era5_si
+
+  # ------------------------------------------------------------------ rebuttal
+
+  rebuttal_rc_cond_r20:
+    paper: Rebuttal -- conditioned combustion models, 20 steps (last)
+    kind: table
+    store: *rc20
+    steps: 20
+    metrics: *rebuttal_metrics
+    rows:
+      - {run: cone_real_combustion_42_rc_tornado_cond_job_469602, label: TORNADO}
+      - *rc_ddim
+      - *rc_fm
+      - *rc_si
+
+  rebuttal_rc_cond_r2000:
+    paper: Rebuttal -- conditioned combustion models, 2000 steps (one window per condition)
+    kind: table
+    store: *rc2000
+    steps: 2000
+    metrics: *rebuttal_metrics
+    rows:
+      - {run: cone_real_combustion_42_rc_tornado_cond_job_469602, label: TORNADO}
+      - *rc_ddim
+      - *rc_fm
+      - *rc_si
+
+  rebuttal_rc_cond_r2000_first20:
+    paper: Rebuttal -- the 2000-step rollouts scored on their first 20 steps
+    kind: table
+    store: *rc2000
+    steps: 20
+    metrics: *rebuttal_metrics
+    rows:
+      - {run: cone_real_combustion_42_rc_tornado_cond_job_469602, label: TORNADO}
+      - *rc_ddim
+      - *rc_fm
+      - *rc_si
+
+  rebuttal_rc_nocond:
+    paper: Rebuttal -- unconditioned combustion models (num_cond=0), 20 steps
+    kind: table
+    store: *rc20
+    steps: 20
+    metrics: *rebuttal_metrics
+    rows:
+      - {run: cone_real_combustion_42_rc_tornado_job_465646, label: TORNADO}
+      - {run: ddim_real_combustion_42_rc_ddim_job_465652, label: DDIM}
+      - {run: flow_matching_real_combustion_42_rc_fm_job_466158, label: FM}
+      - {run: interpolant_real_combustion_42_rc_si_job_465651, label: SI}
+
+  rebuttal_rc_led1:
+    paper: Rebuttal -- lambda_ED=1 on combustion (two submissions, kept apart)
+    kind: table
+    store: *rc20
+    steps: 20
+    metrics: *rebuttal_metrics
+    rows:
+      - {run: cone_real_combustion_42_rc_sw_led1_job_522541, label: TORNADO (ED=1) 522541}
+      - {run: cone_real_combustion_42_rc_sw_led1_job_522590, label: TORNADO (ED=1) 522590}
+      - {run: cone_real_combustion_42_rc_tornado_cond_job_469602, label: TORNADO}
+      - *rc_ddim
+      - *rc_fm
+      - *rc_si
+
+  rebuttal_rc_sig05:
+    paper: Rebuttal -- sigma=0.5 retrained with a 500-step warmup
+    kind: table
+    store: *rc20
+    steps: 20
+    metrics: *rebuttal_metrics
+    rows:
+      - {run: cone_real_combustion_42_rc_tornado_sig05_warm500_job_491047, label: TORNADO s=0.5 (warm500)}
+      - {run: cone_real_combustion_42_rc_tornado_cond_job_469602, label: TORNADO}
+      - *rc_ddim
+      - *rc_fm
+      - *rc_si
+
+  rebuttal_rc_sigma_diagnostic:
+    paper: Rebuttal -- inference-only sigma_scale override. DIAGNOSTIC, NOT REPORTABLE
+    kind: table
+    store: *rc20
+    steps: 20
+    metrics: *rebuttal_metrics
+    rows:
+      - {run: cone_real_combustion_42_rc_tornado_cond_job_469602, label: TORNADO (as trained)}
+      - {run: cone_real_combustion_42_rc_tornado_cond_job_469602, label: "sigma=0.5 (inference)", store: {sigma_scale: 0.5}}
+      - {run: cone_real_combustion_42_rc_tornado_cond_job_469602, label: "sigma=1 (inference)", store: {sigma_scale: 1.0}}
+      - {run: cone_real_combustion_42_rc_tornado_cond_job_469602, label: "sigma=2 (inference)", store: {sigma_scale: 2.0}}
+
+  rebuttal_rc_paired:
+    paper: Rebuttal -- paired differences against SI on the same windows
+    kind: paired
+    store: *rc20
+    steps: 20
+    reference: SI
+    metrics: [mse, crps, rmsce, ssr]
+    rows:
+      - {run: cone_real_combustion_42_rc_sw_led1_job_522541, label: TORNADO (ED=1) 522541}
+      - {run: cone_real_combustion_42_rc_sw_led1_job_522590, label: TORNADO (ED=1) 522590}
+      - *rc_ddim
+      - *rc_fm
+      - *rc_si
+
+  rebuttal_rc_per_step:
+    paper: Rebuttal -- combustion per-step curves (+- std over conditions)
+    kind: per_step
+    store: *rc20
+    steps: 20
+    metrics: [mse, crps, rmsce, ssr, sharpness]
+    rows:
+      - {run: cone_real_combustion_42_rc_sw_led1_job_522590, label: TORNADO}
+      - *rc_ddim
+      - *rc_fm
+      - *rc_si
+
+  rebuttal_era5_sigma_best:
+    paper: Rebuttal -- ERA5 sigma_scale sweep at 'best'
+    kind: table
+    store: *era5_best
+    steps: 40
+    metrics: *rebuttal_metrics
+    rows:
+      - {run: cone_era5_42_era5_tornado_sig0.03_job_532799, label: TORNADO s=0.03}
+      - {run: cone_era5_42_era5_tornado_sig0.1_job_532800, label: TORNADO s=0.1}
+      - {run: cone_era5_42_era5_tornado_sig0.3_job_532801, label: TORNADO s=0.3}
+      - {run: cone_era5_42_era5_tornado_sig1.0_job_532802, label: TORNADO s=1.0}
+      - *era5_ddim
+      - *era5_fm
+      - *era5_si
+
+  rebuttal_era5_ed_sweep:
+    paper: Rebuttal -- ERA5 lambda_ED sweep at sigma=0.1
+    kind: table
+    store: *era5
+    steps: 40
+    metrics: *rebuttal_metrics
+    rows:
+      - {run: cone_era5_42_era5_tornado_sig0.1_job_532800, label: TORNADO (ED=0.1)}
+      - {run: cone_era5_42_era5_tornado_sig0.1_ed0.3_job_538192, label: TORNADO (ED=0.3)}
+      - {run: cone_era5_42_era5_tornado_sig0.1_ed1.0_job_538193, label: TORNADO (ED=1)}
+      - {run: cone_era5_42_era5_tornado_sig0.1_ed3.0_job_538194, label: TORNADO (ED=3)}
+
+  rebuttal_era5_sigma_long:
+    paper: Rebuttal -- ERA5 sweep after the longer training budget, vs SI
+    kind: table
+    store: *era5
+    steps: 40
+    metrics: *rebuttal_metrics
+    rows:
+      - {run: cone_era5_42_era5_tornado_sig0.1_long_job_541448, label: TORNADO s=0.1 (long)}
+      - {run: cone_era5_42_era5_tornado_sig0.3_long_job_541449, label: TORNADO s=0.3 (long)}
+      - {run: cone_era5_42_era5_tornado_sig1.0_long_job_541450, label: TORNADO s=1.0 (long)}
+      - {run: cone_era5_42_era5_tornado_sig0.1_ed3.0_long_job_541534, label: "TORNADO (ED=3, long)"}
+      - *era5_si
+
+  rebuttal_era5_ed10:
+    paper: Rebuttal -- ERA5 lambda_ED=10 vs 3 vs SI
+    kind: table
+    store: *era5
+    steps: 40
+    metrics: *rebuttal_metrics
+    rows:
+      - {run: cone_era5_42_era5_tornado_sig0.1_ed10.0_job_549320, label: TORNADO (ED=10)}
+      - {run: cone_era5_42_era5_tornado_sig0.1_ed3.0_long_job_541534, label: TORNADO (ED=3)}
+      - *era5_si
+
+  rebuttal_latent_ssr:
+    paper: Rebuttal -- SSR in latent space and corrected for the decoder floor
+    kind: table
+    store: *km
+    steps: 20
+    metrics:
+      - {col: ssr, label: "SSR (pixel)", prec: 3, better: one}
+      - {col: ssr_z, label: "SSR (latent)", prec: 3, better: one}
+      - {col: ssr_corrected, label: "SSR (decoder-corrected)", prec: 3, better: one}
+      - {col: rmse_vae, label: "decoder RMSE", prec: 4, better: none}
+    rows: *km4

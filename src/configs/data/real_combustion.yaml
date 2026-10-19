@@ -1,0 +1,29 @@
+# RealPDEBench real_combustion: flame intensity, 128 x 128, ~2001 frames per run.
+autoencoder:
+  checkpoint_path: ${oc.env:SCRATCH}/stochastic_interpolants/logs/
+  run: ae_real_combustion_42_rc_vae_job_450784
+  type: best
+
+dataset:
+  path: ${oc.env:SCRATCH}/datasets/RealPDEBench/combustion/hf_dataset/real
+  resolution: [2001, 128, 128]
+  # held out by whole run; stratify keeps one run per NH3 blend in valid
+  stratify: true
+  val_sims: null
+  n_val: 3
+  t_downsample: 1
+  horizon: 100
+  window_stride: 100
+  val_horizon: 100
+  val_window_stride: 100
+  dx: 1.0 # placeholders: the archive has no coordinates
+  dt: 1.0
+normalizer:
+  stat_path: ${oc.env:SCRATCH}/datasets/RealPDEBench/combustion_norm_stats.pkl
+  transform: log1p
+val_rollout_steps: null # null: the whole window
+pde: real_combustion
+num_cond: 2 # (NH3 blend %, equivalence ratio); 0 disables conditioning
+num_workers: 8
+batch_size: 32
+ae: False

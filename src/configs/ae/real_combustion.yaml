@@ -1,0 +1,56 @@
+model:
+  model_name: AE
+  lr: 1.0e-4
+  encoder:
+    in_channels: 1
+    latent_channels: 4
+    width_list: [64, 128, 256, 256]
+    block_type: ["ResBlock", "ResBlock", "ResBlock", "ResBlock"]
+    depth_list: [3, 3, 3, 3]
+  decoder:
+    in_channels: 1
+    latent_channels: 4
+    width_list: [64, 128, 256, 256]
+    block_type: ["ResBlock", "ResBlock", "ResBlock", "ResBlock"]
+    depth_list: [3, 3, 3, 3]
+  kl_weight: 5.0e-06
+  kl_warmup_epochs: 100
+  lambda_iso: 0.0
+  lambda_curv: 0.0
+  lambda_vel: 0
+  calib_K: 1
+  calib_weight: 0.0
+  jac_weight: 0.0
+
+data:
+  dataset:
+    path: ${oc.env:SCRATCH}/datasets/RealPDEBench/combustion/hf_dataset/real
+    resolution: [2001, 128, 128]
+    stratify: true
+    val_sims: null
+    n_val: 3
+    t_downsample: 1
+    horizon: 100
+    window_stride: 100
+    dx: 1.0
+    dt: 1.0
+  normalizer:
+    stat_path: ${oc.env:SCRATCH}/datasets/RealPDEBench/combustion_norm_stats.pkl
+    transform: log1p
+  pde: real_combustion
+  num_workers: 8
+  batch_size: 32
+  ae: True
+
+training:
+  seed: 42
+  devices: [0]
+  accelerator: gpu
+  strategy: auto
+  check_val_every_n_epoch: 10
+  log_every_n_steps: 10
+  max_epochs: 5000
+  log_dir: ${oc.env:SCRATCH}/stochastic_interpolants/logs/
+  project: stochastic_interpolants
+  wandb_mode: offline
+  checkpoint: null

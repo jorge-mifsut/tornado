@@ -1,0 +1,7 @@
+model_name: flow_matching
+lr: 1.0e-4
+latent: True
+
+flow_matching:
+  num_refinement_steps: 10
+  num_train_steps: 5

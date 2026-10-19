@@ -1,0 +1,6 @@
+model_name: gaussian_nll
+lr: 1.0e-4
+latent: True
+
+gaussian_nll:
+    max_eval_steps: 1

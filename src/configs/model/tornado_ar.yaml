@@ -1,0 +1,20 @@
+model_name: tornado_ar
+lr: 1.0e-5
+latent: True
+warmup_epochs: 10
+ramp_epochs: 1
+lambda_max: 1.0
+
+tornado_ar:
+  integrator_steps: 5
+  K: 16
+  L: 16
+  lambda_ED: 0.1
+  sigma_min: 1.0e-4
+  sigma_scale: 0.1
+  horizon: 4
+  train_integrator_steps: 5
+  step_weight_decay: 0.9
+  detach_rollout: true
+  from_checkpoint: cone_km_flow_42_alldet_2026-01-22T11-43-08
+  from_checkpoint_type: best

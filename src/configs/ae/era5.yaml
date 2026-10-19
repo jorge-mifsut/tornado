@@ -1,0 +1,66 @@
+# Flattened equivalent of: python train.py model=ae_era5 data=era5 data.ae=True
+model:
+  model_name: AE
+  lr: 1.0e-4
+  input_resolution: [121, 240]
+  pad_to_multiple: 8
+  lat_weighted_loss: true
+  encoder:
+    in_channels: 4
+    latent_channels: 8
+    width_list: [64, 128, 256, 256]
+    block_type: ["ResBlock", "ResBlock", "ResBlock", "ResBlock"]
+    depth_list: [3, 3, 3, 3]
+    cond_dim: 4
+    padding_mode: sphere
+  decoder:
+    in_channels: 4
+    latent_channels: 8
+    width_list: [64, 128, 256, 256]
+    block_type: ["ResBlock", "ResBlock", "ResBlock", "ResBlock"]
+    depth_list: [3, 3, 3, 3]
+    cond_dim: 4
+    padding_mode: sphere
+  kl_weight: 5.0e-06
+  kl_warmup_epochs: 20
+  lambda_iso: 0.0
+  lambda_curv: 0.0
+  lambda_vel: 0
+  calib_K: 1
+  calib_weight: 0.0
+  jac_weight: 0.0
+
+data:
+  dataset:
+    path: ${oc.env:SCRATCH}/datasets/WeatherBench/era5_1p5
+    resolution: [121, 240]
+    train_years: [2010, 2011, 2012, 2013, 2014, 2015]
+    val_years: [2016]
+    test_years: [2017, 2018]
+    t_downsample: 1
+    horizon: 2
+    window_stride: 1
+    val_horizon: 21
+    val_window_stride: 21
+    dx: 1.5
+    dt: 6.0
+  normalizer:
+    stat_path: ${oc.env:SCRATCH}/datasets/WeatherBench/era5_1p5/era5_1p5_norm_stats.pkl
+  pde: era5
+  num_cond: 4
+  num_workers: 8
+  batch_size: 32
+  ae: True
+
+training:
+  seed: 42
+  devices: [0]
+  accelerator: gpu
+  strategy: auto
+  check_val_every_n_epoch: 5
+  log_every_n_steps: 32
+  max_epochs: 400
+  log_dir: ${oc.env:SCRATCH}/stochastic_interpolants/logs/
+  project: stochastic_interpolants
+  wandb_mode: offline
+  checkpoint: null

@@ -1,0 +1,31 @@
+# WeatherBench-2 ERA5 at 1.5 degrees: [t2m, u10, v10, z500] on 121 x 240, 6-hourly.
+autoencoder:
+  checkpoint_path: ${oc.env:SCRATCH}/stochastic_interpolants/logs/
+  run: ae_era5_42_era5_vae_job_CHANGEME
+  type: best
+
+dataset:
+  path: ${oc.env:SCRATCH}/datasets/WeatherBench/era5_1p5 # from dataset/prepare_era5.py
+  resolution: [121, 240]
+  train_years: [2010, 2011, 2012, 2013, 2014, 2015]
+  val_years: [2016]
+  test_years: [2017, 2018]
+  t_downsample: 1
+  horizon: 2
+  window_stride: 1
+  val_horizon: 21 # 5 days
+  val_window_stride: 21
+  test_horizon: 41 # 10 days
+  test_window_stride: 4
+  dx: 1.5 # degrees
+  dt: 6.0 # hours
+
+normalizer:
+  stat_path: ${oc.env:SCRATCH}/datasets/WeatherBench/era5_1p5/era5_1p5_norm_stats.pkl
+
+val_rollout_steps: null # null: the whole window
+pde: era5
+num_cond: 4 # date features; 0 disables conditioning
+num_workers: 8
+batch_size: 32
+ae: False

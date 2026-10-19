@@ -1,0 +1,15 @@
+autoencoder:
+  checkpoint_path: ${oc.env:WORK}/TORNADO/models/logs/
+  run: AE_km_flow__42_2025-11-24T11-52-26
+  type: best
+
+dataset:
+  train_path: ${oc.env:SCRATCH}/datasets/ApeBench/KolmFlow_train_1024.h5
+  valid_path: ${oc.env:SCRATCH}/datasets/ApeBench/KolmFlow_valid_256.h5
+  resolution: [100, 160, 160]
+normalizer:
+  stat_path: ${oc.env:SCRATCH}/datasets/ApeBench/KolmFlow_train_norm_stats.pkl
+pde: km_flow
+num_workers: 8
+batch_size: 32
+ae: False
